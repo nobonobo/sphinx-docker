@@ -1,0 +1,20 @@
+FROM nobonobo/sphinx-texlive2013
+
+ENV HOME /home/${USER}
+
+# add user
+RUN useradd -u 1000 ${USER} -p ${USER} -m \
+  && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \
+  && echo '${USER}:${USER}' | chpasswd \
+  && echo "/bin/bash" | chsh ${USER} \
+  && usermod -G users ${USER}
+
+# add authorized_keys
+ADD https://github.com/${GITHUBUSER}.keys $HOME/.ssh/authorized_keys
+RUN chown -R ${USER}:${USER} $HOME/.ssh
+RUN chmod 600 $HOME/.ssh/authorized_keys
+RUN cat /etc/ssh/sshd_config
+
+EXPOSE 22
+ENTRYPOINT ["/usr/sbin/sshd"]
+CMD ["-D"]
