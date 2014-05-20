@@ -1,14 +1,19 @@
-.PHONY: build run stop clean
+.PHONY: build localbuild run stop clean
 
 TAG=local/sphinx-texlive2013
 USER=$(shell echo $$USER)
 GITHUBUSER=
 
 build: stop _build clean
+localbuild: stop _localbuild clean
 
-_build: ./Dockerfile
+_localbuild:
 	make -C base
 	make -C texlive
+	docker build --rm -t $(TAG) .
+
+_build: ./Dockerfile
+	if ! docker images | grep nobonobo/sphinx-texlive2013 ; then docker pull nobonobo/sphinx-texlive2013; fi
 	docker build --rm -t $(TAG) .
 
 run: stop _run
@@ -34,6 +39,3 @@ clean:
 
 ssh:
 	ssh -p $$(docker port $$(docker ps | grep $(TAG) | cut -f1 -d" ") 22 | cut -d: -f2) $$USER@localhost
-
-push:
-	docker push $(TAG)
