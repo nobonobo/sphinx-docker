@@ -19,7 +19,7 @@ _build: ./Dockerfile
 run: stop _run
 
 _run:
-	docker run -d -t -p 22 -v $$HOME:/mnt/home $(TAG) $(OPT)
+	docker run -d -p 22 -v $$HOME:/mnt/home $(TAG) $(OPT)
 
 ./Dockerfile: ./Dockerfile.local
 	@if [ "$(GITHUBUSER)" = "" ]; then echo 'need make option GITHUBUSER=****'; exit 1; fi
